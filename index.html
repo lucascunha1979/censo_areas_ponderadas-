@@ -1,0 +1,829 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Censo 2022 — Áreas de Ponderação
+    </title>
+
+    <link
+        href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"
+        rel="stylesheet"
+    />
+
+    <link
+        rel="stylesheet"
+        href="style.css?v=20260908135917"
+    >
+
+</head>
+
+<body>
+
+<div
+    id="v3Tabs"
+    class="v3-tabs"
+>
+
+    <button
+        id="tabPanelButton"
+        class="v3-tab active"
+        type="button"
+    >
+        Painel
+    </button>
+
+    <button
+        id="tabMethodButton"
+        class="v3-tab"
+        type="button"
+    >
+        Metodologia
+    </button>
+
+</div>
+
+
+<div id="app">
+
+    <!-- ================================================== -->
+    <!-- CABEÇALHO -->
+    <!-- ================================================== -->
+
+    <header class="topbar">
+
+        <div>
+
+            <h1>
+                Censo 2022
+            </h1>
+
+            <div class="subtitle">
+                Resultados por Áreas de Ponderação
+            </div>
+
+        </div>
+
+        <button
+            id="themeButton"
+            class="theme-button"
+            title="Alternar modo claro/escuro"
+        >
+            ☾
+        </button>
+
+    </header>
+
+
+    <!-- ================================================== -->
+    <!-- BLOCO / CONTROLES -->
+    <!-- ================================================== -->
+
+    <section class="control-panel">
+
+        <div class="control-group">
+
+    <label
+        class="label"
+        for="blockSelect"
+    >
+        Bloco
+    </label>
+
+    <select id="blockSelect">
+    </select>
+
+</div>
+
+
+        
+<div class="control-group">
+
+    <label
+        class="label"
+        for="subblockSelect"
+    >
+        Subbloco
+    </label>
+
+    <select id="subblockSelect">
+    </select>
+
+</div>
+
+
+<div class="control-group">
+
+            <label
+                class="label"
+                for="variableSelect"
+            >
+                Variável
+            </label>
+
+            <select id="variableSelect">
+            </select>
+
+        </div>
+
+
+        <div class="control-group">
+
+            <span class="label">
+                Métrica
+            </span>
+
+            <div class="metric-toggle">
+
+                <button
+                    id="metricAbsolute"
+                    class="metric-button active"
+                >
+                    Absoluto
+                </button>
+
+                <button
+                    id="metricPercent"
+                    class="metric-button"
+                >
+                    % categoria
+</button>
+
+                <button
+                    id="metricShare"
+                    class="metric-button"
+                    title="Participação da Área de Ponderação na abrangência territorial"
+                    disabled
+                >
+                    % abrangência
+                </button>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="control-group">
+
+            <label
+                class="label"
+                for="ufSelect"
+            >
+                Estado
+            </label>
+
+            <select id="ufSelect">
+
+                <option value="">
+                    Brasil
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="control-group">
+
+            <label
+                class="label"
+                for="municipalitySelect"
+            >
+                Município
+            </label>
+
+            <select
+                id="municipalitySelect"
+                disabled
+            >
+
+                <option value="">
+                    Todos
+                </option>
+
+            </select>
+
+        </div>
+
+    
+
+        <div class="control-group">
+
+            <span class="label">
+                Abrangência
+            </span>
+
+            <div
+                id="scopeIndicator"
+                class="scope-indicator"
+            >
+                Brasil
+            </div>
+
+        </div>
+
+
+        <div class="control-group">
+
+            <label
+                class="label"
+                for="unitSelect"
+            >
+                Unidade exibida
+            </label>
+
+            <select id="unitSelect">
+                <option value="uf">
+                    Estados
+                </option>
+                <option value="ap">
+                    Áreas de Ponderação
+                </option>
+            </select>
+
+        </div>
+
+</section>
+
+
+    
+
+<div
+    id="downloadToolbar"
+    class="download-toolbar"
+>
+
+    <button
+        id="downloadFiltersBtn"
+        class="download-button"
+        type="button"
+        title="Salvar as seleções atuais do painel"
+    >
+        ↓ Baixar filtros
+    </button>
+
+    <button
+        id="downloadDataBtn"
+        class="download-button primary"
+        type="button"
+        title="Baixar os dados atualmente visualizados"
+    >
+        ↓ Baixar dados (.csv)
+    </button>
+
+</div>
+
+<div
+    id="coverageNotice"
+    class="coverage-notice"
+    hidden
+>
+</div>
+
+
+<!-- ================================================== -->
+    <!-- BREADCRUMB -->
+    <!-- ================================================== -->
+
+    <section class="breadcrumb-bar">
+
+        <button
+            id="backButton"
+            class="back-button"
+            disabled
+        >
+            ← Voltar
+        </button>
+
+        <div id="breadcrumb">
+            Brasil
+        </div>
+
+    </section>
+
+
+    <!-- ================================================== -->
+    <!-- CARDS -->
+    <!-- ================================================== -->
+
+    <section class="cards">
+
+        <div class="card">
+
+            <div class="card-label">
+                Território
+            </div>
+
+            <div
+                id="cardTerritory"
+                class="card-value card-territory"
+            >
+                Brasil
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div
+                id="cardTotalLabel"
+                class="card-label"
+            >
+                Total de referência
+            </div>
+
+            <div
+                id="cardTotal"
+                class="card-value"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div
+                id="cardCategoryLabel"
+                class="card-label"
+            >
+                Categoria
+            </div>
+
+            <div
+                id="cardCategory"
+                class="card-value"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div
+                id="cardPercentLabel"
+                class="card-label"
+            >
+                Percentual da categoria
+            </div>
+
+            <div
+                id="cardPercent"
+                class="card-value"
+            >
+                —
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================== -->
+    <!-- MAPA + RANKING -->
+    <!-- ================================================== -->
+
+    <main class="main-grid">
+
+        <section class="map-card">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <div class="panel-title">
+                        Distribuição territorial
+                    </div>
+
+                    <div
+                        id="mapSubtitle"
+                        class="panel-subtitle"
+                    >
+                    </div>
+
+                </div>
+
+                <div class="classification-badge">
+                    5 classes · Jenks
+                </div>
+
+            </div>
+
+
+            <div id="map">
+            </div>
+
+
+            <div
+                id="legend"
+                class="legend"
+            >
+            </div>
+
+        </section>
+
+
+        <section class="ranking-card">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <div class="panel-title">
+                        Ranking
+                    </div>
+
+                    <div
+                        id="rankingSubtitle"
+                        class="panel-subtitle"
+                    >
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div
+                id="ranking"
+                class="ranking"
+            >
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================================================== -->
+    <!-- RODAPÉ PROVISÓRIO -->
+    <!-- ================================================== -->
+
+    <footer>
+
+        Censo Demográfico 2022 · Protótipo de visualização
+
+    </footer>
+
+</div>
+
+
+<!-- Loading -->
+
+<div
+    id="loading"
+    class="loading"
+>
+
+    <div class="spinner">
+    </div>
+
+    <span>
+        Carregando...
+    </span>
+
+</div>
+
+
+<script
+    src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"
+></script>
+
+<script src="app.js?v=20260908135917"></script>
+
+
+<section
+    id="methodologyPane"
+    class="methodology-pane"
+    hidden
+>
+
+    <div class="methodology-container">
+
+        <div class="methodology-heading">
+
+            <div>
+
+                <div class="methodology-kicker">
+                    Censo Demográfico 2022
+                </div>
+
+                <h1>
+                    Metodologia e definições
+                </h1>
+
+                <p>
+                    Critérios territoriais, tratamento dos dados,
+                    formas de agregação e dicionário das variáveis
+                    utilizadas no painel.
+                </p>
+
+            </div>
+
+            <button
+                id="closeMethodologyBtn"
+                class="methodology-close"
+                type="button"
+            >
+                Voltar ao painel
+            </button>
+
+        </div>
+
+
+        <div class="methodology-grid">
+
+            <article class="method-card">
+
+                <h2>
+                    O que são Áreas de Ponderação?
+                </h2>
+
+                <p>
+                    As Áreas de Ponderação (APONDs) são
+                    agrupamentos de Setores Censitários e
+                    constituem o menor recorte geográfico usado
+                    pelo IBGE para divulgar os resultados do
+                    Questionário da Amostra do Censo Demográfico.
+                </p>
+
+                <p>
+                    Sua delimitação combina critérios estatísticos
+                    e geográficos, buscando compatibilizar
+                    representatividade amostral, contiguidade
+                    espacial, características socioeconômicas e,
+                    quando possível, recortes territoriais
+                    reconhecidos localmente.
+                </p>
+
+                <p class="method-source">
+                    Fonte: IBGE. Censo Demográfico 2022 —
+                    Notas metodológicas 02/2026:
+                    Metodologia de construção das Áreas de
+                    Ponderação.
+                </p>
+
+            </article>
+
+
+            <article class="method-card">
+
+                <h2>
+                    Abrangência territorial
+                </h2>
+
+                <p>
+                    O painel separa a abrangência territorial da
+                    unidade espacial exibida.
+                </p>
+
+                <ul>
+
+                    <li>
+                        Brasil → Estados ou Áreas de Ponderação
+                    </li>
+
+                    <li>
+                        Unidade da Federação → Municípios ou
+                        Áreas de Ponderação
+                    </li>
+
+                    <li>
+                        Município → Áreas de Ponderação
+                    </li>
+
+                </ul>
+
+                <p>
+                    As Áreas de Ponderação não devem ser
+                    interpretadas automaticamente como bairros.
+                    Em alguns municípios elas podem aproximar
+                    recortes administrativos ou áreas reconhecidas
+                    localmente, mas são unidades estatísticas
+                    próprias.
+                </p>
+
+            </article>
+
+
+            <article class="method-card">
+
+                <h2>
+                    Métricas do painel
+                </h2>
+
+                <dl>
+
+                    <dt>
+                        Absoluto
+                    </dt>
+
+                    <dd>
+                        Valor publicado ou agregado da variável
+                        selecionada.
+                    </dd>
+
+
+                    <dt>
+                        % categoria
+                    </dt>
+
+                    <dd>
+                        Valor da categoria dividido pelo Total
+                        oficial correspondente ao mesmo universo
+                        estatístico no território.
+                    </dd>
+
+
+                    <dt>
+                        % abrangência
+                    </dt>
+
+                    <dd>
+                        Para APs, representa a participação da AP
+                        no total da mesma categoria dentro da
+                        abrangência selecionada — Brasil, UF ou
+                        Município.
+                    </dd>
+
+                </dl>
+
+            </article>
+
+
+            <article class="method-card">
+
+                <h2>
+                    Regras de agregação
+                </h2>
+
+                <ul>
+
+                    <li>
+                        <strong>Contagens:</strong>
+                        somadas das APs para municípios, UFs e
+                        Brasil.
+                    </li>
+
+                    <li>
+                        <strong>Médias:</strong>
+                        agregadas somente quando existe um peso
+                        estatisticamente adequado, utilizando
+                        média ponderada.
+                    </li>
+
+                    <li>
+                        <strong>Medianas:</strong>
+                        não são combinadas entre APs para
+                        reconstruir medianas de territórios
+                        superiores.
+                    </li>
+
+                    <li>
+                        <strong>Totais:</strong>
+                        o Total original publicado pelo IBGE é
+                        preservado e não é reconstruído pela soma
+                        das categorias.
+                    </li>
+
+                    <li>
+                        <strong>Categorias derivadas:</strong>
+                        as variáveis identificadas como AGR_
+                        resultam somente da soma explícita de
+                        categorias originais documentadas.
+                    </li>
+
+                </ul>
+
+            </article>
+
+
+            <article class="method-card">
+
+                <h2>
+                    Integridade e cobertura
+                </h2>
+
+                <p>
+                    Os valores originais não são normalizados
+                    artificialmente para obrigar categorias a
+                    fechar 100%. Quando o conjunto de categorias
+                    divulgado não recompõe integralmente o Total,
+                    o Total oficial continua sendo preservado.
+                </p>
+
+                <p>
+                    A base analítica contém 14.270 Áreas de
+                    Ponderação. A geometria utilizada no painel
+                    contém 14.406 feições; 136 delas não possuem
+                    dados correspondentes nas tabelas analíticas
+                    utilizadas e são apresentadas como
+                    <strong>Sem dados</strong>.
+                </p>
+
+                <p>
+                    Na Tabela 11.1, seis APs do Distrito Federal
+                    possuem cobertura incompleta em razão da
+                    anomalia identificada na fonte; essas áreas
+                    são mantidas e sinalizadas.
+                </p>
+
+            </article>
+
+
+            <article class="method-card">
+
+                <h2>
+                    Comparabilidade temporal
+                </h2>
+
+                <p>
+                    As Áreas de Ponderação de 2010 e 2022 não
+                    devem ser comparadas diretamente apenas pelo
+                    nome. Alterações de setores censitários,
+                    limites, composição e metodologia podem
+                    produzir geometrias distintas entre os dois
+                    Censos.
+                </p>
+
+                <p>
+                    Comparações temporais exigem avaliação prévia
+                    das geometrias e dos setores que compõem cada
+                    área.
+                </p>
+
+            </article>
+
+        </div>
+
+
+        <section class="variable-dictionary">
+
+            <div class="dictionary-header">
+
+                <div>
+
+                    <h2>
+                        Dicionário das variáveis
+                    </h2>
+
+                    <p>
+                        As definições abaixo são geradas
+                        diretamente dos metadados que controlam
+                        o painel.
+                    </p>
+
+                </div>
+
+                <input
+                    id="methodologySearch"
+                    type="search"
+                    placeholder="Buscar bloco, variável ou tabela..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div
+                id="methodologyVariableCount"
+                class="dictionary-count"
+            >
+            </div>
+
+            <div
+                id="methodologyVariables"
+                class="dictionary-table-wrap"
+            >
+                Carregando dicionário...
+            </div>
+
+        </section>
+
+
+        <div class="methodology-footer">
+
+            <strong>Fonte estatística:</strong>
+            IBGE — Censo Demográfico 2022,
+            Resultados Gerais da Amostra por Áreas de Ponderação.
+
+        </div>
+
+    </div>
+
+</section>
+
+</body>
+</html>
